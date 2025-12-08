@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
   const login = async (usernameOrEmail, password) => {
     const response = await apiRequest("/api/auth/login", {
       method: "POST",
-      body: JSON.stringify({ username: usernameOrEmail, email: usernameOrEmail, password }),
+      body: JSON.stringify({ email: usernameOrEmail, password }), // Send usernameOrEmail in email field
     });
 
     if (!response.ok) {

@@ -1,12 +1,38 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Users, Briefcase, TrendingUp, AlertTriangle, FileText, UserCheck } from "lucide-react";
 import { KPICard } from "@/components/KPICard";
 import { RecentActivityFeed } from "@/components/RecentActivityFeed";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Dashboard() {
+  const { data: employeeStats = {} } = useQuery({
+    queryKey: ["/api/employees/stats"],
+    refetchInterval: 5000,
+  });
+
+  const { data: uploadStats = [] } = useQuery({
+    queryKey: ["/api/uploads"],
+  });
+
+  const stats = employeeStats.stats || {
+    totalEmployees: 0,
+    avgProductivity: 0,
+    highPerformers: 0,
+    lowUtilization: 0,
+  };
+
+  const employees = employeeStats.employees || [];
+
+  const topPerformers = useMemo(() => {
+    return employees
+      .sort((a, b) => (b.fitmentScore || 0) - (a.fitmentScore || 0))
+      .slice(0, 3);
+  }, [employees]);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -31,27 +57,27 @@ export default function Dashboard() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <KPICard
           title="Total Employees"
-          value={245}
+          value={stats.totalEmployees}
           icon={Users}
-          trend={{ value: 12, isPositive: true }}
+          trend={{ value: 0, isPositive: true }}
         />
         <KPICard
-          title="Active Tasks"
-          value={1248}
-          icon={Briefcase}
-          trend={{ value: 8, isPositive: true }}
+          title="High Performers"
+          value={stats.highPerformers}
+          icon={TrendingUp}
+          trend={{ value: 0, isPositive: true }}
         />
         <KPICard
           title="Avg Productivity"
-          value="87%"
-          icon={TrendingUp}
-          trend={{ value: 5, isPositive: true }}
+          value={`${Math.round(stats.avgProductivity || 0)}%`}
+          icon={Briefcase}
+          trend={{ value: 0, isPositive: true }}
         />
         <KPICard
-          title="Alerts"
-          value={12}
+          title="Low Utilization"
+          value={stats.lowUtilization}
           icon={AlertTriangle}
-          subtitle="Requires attention"
+          subtitle="Below 50%"
         />
       </div>
 
@@ -67,15 +93,19 @@ export default function Dashboard() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">CVs Uploaded</span>
-              <span className="text-2xl font-bold">156</span>
+              <span className="text-2xl font-bold">
+                {uploadStats?.filter?.((s) => s.type === "cv").length || 0}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Job Descriptions</span>
-              <span className="text-2xl font-bold">42</span>
+              <span className="text-2xl font-bold">
+                {uploadStats?.filter?.((s) => s.type === "jd").length || 0}
+              </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Fitment Matches</span>
-              <span className="text-2xl font-bold">89</span>
+              <span className="text-sm text-muted-foreground">Total Employees</span>
+              <span className="text-2xl font-bold">{stats.totalEmployees}</span>
             </div>
           </CardContent>
         </Card>
@@ -88,18 +118,18 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Sarah Johnson</span>
-              <span className="text-sm font-medium">95% Fitment</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Mike Chen</span>
-              <span className="text-sm font-medium">92% Fitment</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Emma Wilson</span>
-              <span className="text-sm font-medium">90% Fitment</span>
-            </div>
+            {topPerformers.length > 0 ? (
+              topPerformers.map((emp, idx) => (
+                <div key={idx} className="flex items-center justify-between">
+                  <span className="text-sm">{emp.name}</span>
+                  <span className="text-sm font-medium">
+                    {emp.fitmentScore?.toFixed(1) || "N/A"} Score
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">No employees yet</p>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -37,6 +37,7 @@ export const register = async (req, res) => {
         user: {
           id: user._id,
           name: user.name,
+          username: user.name, // Add username for frontend consistency
           email: user.email,
           role: user.role,
         },
@@ -62,8 +63,15 @@ export const login = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // Check for user email
-    const user = await User.findOne({ email });
+    // Check for user by email or name (usernameOrEmail is sent in both fields)
+    let user;
+    const loginInput = email || username; // Use email field as it contains usernameOrEmail
+
+    if (loginInput.includes('@')) {
+      user = await User.findOne({ email: loginInput });
+    } else {
+      user = await User.findOne({ name: loginInput });
+    }
 
     if (user && (await bcrypt.compare(password, user.password))) {
       res.json({
@@ -72,6 +80,7 @@ export const login = async (req, res) => {
         user: {
           id: user._id,
           name: user.name,
+          username: user.name, // Add username for frontend consistency
           email: user.email,
           role: user.role,
         },

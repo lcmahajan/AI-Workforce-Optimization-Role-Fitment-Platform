@@ -4,6 +4,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Search, ArrowUpDown, Users, TrendingUp, Award, AlertCircle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 const LOAD_SAMPLE_DATA = false;
 
@@ -23,10 +25,25 @@ export default function Employees() {
   const [employees, setEmployees] = useState([]);
   const [autoInsights, setAutoInsights] = useState([]);
 
-  // Load sample data if LOAD_SAMPLE_DATA flag is enabled
-  // In production, this will be replaced with API calls or CSV upload handlers
+  const { data: apiEmployees = [] } = useQuery({
+    queryKey: ["/api/employees"],
+    refetchInterval: 5000,
+  });
+
   useEffect(() => {
-    if (LOAD_SAMPLE_DATA) {
+    if (apiEmployees.data && apiEmployees.data.length > 0) {
+      const formattedEmployees = apiEmployees.data.map((emp, idx) => ({
+        id: emp._id || idx + 1,
+        name: emp.name || "N/A",
+        role: emp.position || "N/A",
+        tower: emp.department || "N/A",
+        fitmentScore: emp.fitmentScore || 0,
+        fitment: autoClassifyFitment(emp.fitmentScore || 0),
+        productivity: emp.productivity || 0,
+        utilization: emp.utilization || 0,
+      }));
+      setEmployees(formattedEmployees);
+    } else if (LOAD_SAMPLE_DATA) {
       const sampleEmployees = [
         {
           id: 1,
@@ -112,7 +129,7 @@ export default function Employees() {
       
       setEmployees(sampleEmployees);
     }
-  }, []);
+  }, [apiEmployees]);
 
   // Automation: Generate insights when employee data changes
   useEffect(() => {

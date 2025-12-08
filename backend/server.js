@@ -30,12 +30,14 @@ app.get("/", (req, res) => {
 // Add your routes
 import authRoutes from "./routes/authRoutes.js";
 import employeeRoutes from "./routes/employeeRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
 
 app.use("/api/auth", authRoutes);
 app.use("/api/employees", employeeRoutes);
+app.use("/api/uploads", uploadRoutes);
 
 // Server Running
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });

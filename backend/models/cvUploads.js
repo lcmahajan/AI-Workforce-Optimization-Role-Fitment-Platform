@@ -1,13 +1,14 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const CvUploadSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: 'User' },
-  fileUrl: { type: String, required: true },
-  fileName: String,
-  uploadedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+  candidateName: String,
+  email: String,
+  skills: [String],
+  experience: String,
+  education: String,
   uploadedAt: { type: Date, default: Date.now },
-  meta: Schema.Types.Mixed
+  uploadedBy: { type: Schema.Types.ObjectId, ref: 'User' }
 });
 
-module.exports = mongoose.model('CvUpload', CvUploadSchema);
+export default mongoose.model('cvUploads', CvUploadSchema);

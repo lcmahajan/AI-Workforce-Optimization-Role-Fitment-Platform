@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { FileText, Upload, Activity, CheckCircle2, AlertCircle, Loader2, FileUp } from "lucide-react";
+import { FileText, Upload, Activity, CheckCircle2, AlertCircle, Loader2, FileUp, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -26,6 +26,16 @@ export default function UploadData() {
   
   const [activityFile, setActivityFile] = useState(null);
   const [parsedActivities, setParsedActivities] = useState([]);
+
+  const [employeeData, setEmployeeData] = useState([
+    { id: 1, name: "", email: "", department: "", position: "", salary: "", productivity: "", utilization: "", fitmentScore: "" },
+    { id: 2, name: "", email: "", department: "", position: "", salary: "", productivity: "", utilization: "", fitmentScore: "" },
+    { id: 3, name: "", email: "", department: "", position: "", salary: "", productivity: "", utilization: "", fitmentScore: "" },
+    { id: 4, name: "", email: "", department: "", position: "", salary: "", productivity: "", utilization: "", fitmentScore: "" },
+  ]);
+  const [uploadedEmployees, setUploadedEmployees] = useState([]);
+  const [employeeFile, setEmployeeFile] = useState(null);
+  const [uploadedEmployeeAnalysis, setUploadedEmployeeAnalysis] = useState(null);
 
   const { data: stats = [] } = useQuery({
     queryKey: ["/api/uploads"],
@@ -139,6 +149,38 @@ export default function UploadData() {
     },
   });
 
+  const employeeUploadMutation = useMutation({
+    mutationFn: async (employees) => {
+      const response = await apiRequest("/api/employees/bulk", {
+        method: "POST",
+        body: JSON.stringify({
+          employees: employees.filter(emp => emp.name && emp.email)
+        }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setUploadedEmployees(data.employees || []);
+      
+      queryClient.invalidateQueries({ queryKey: ["/api/uploads"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
+      
+      toast({
+        title: "Employee Data Uploaded",
+        description: `${data.count || 0} employees saved successfully.`,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Upload Failed",
+        description: error.message || "Failed to upload employee data",
+        variant: "destructive",
+      });
+    },
+  });
+
   const extractSkills = (text) => {
     const skillKeywords = ["JavaScript", "TypeScript", "React", "Node.js", "Python", "SQL", "AWS", "Docker", "Kubernetes"];
     return skillKeywords.filter((skill) => text.toLowerCase().includes(skill.toLowerCase()));
@@ -162,6 +204,31 @@ export default function UploadData() {
     }
   };
 
+  const handleEmployeeDataChange = (index, field, value) => {
+    const newData = [...employeeData];
+    newData[index][field] = value;
+    setEmployeeData(newData);
+  };
+
+  const handleEmployeeUpload = () => {
+    const validEmployees = employeeData.filter(emp => emp.name && emp.email);
+    if (validEmployees.length > 0) {
+      employeeUploadMutation.mutate(validEmployees);
+    } else {
+      toast({
+        title: "No Valid Data",
+        description: "Please fill in at least Name and Email for employees",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEmployeeFileUpload = () => {
+    if (employeeFile) {
+      employeeFileUploadMutation.mutate(employeeFile);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -172,7 +239,11 @@ export default function UploadData() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3" data-testid="tabs-upload">
+        <TabsList className="grid w-full grid-cols-4" data-testid="tabs-upload">
+          <TabsTrigger value="employees" data-testid="tab-employees">
+            <Users className="h-4 w-4 mr-2" />
+            Employee Data
+          </TabsTrigger>
           <TabsTrigger value="jds" data-testid="tab-jds">
             <FileText className="h-4 w-4 mr-2" />
             Job Descriptions
@@ -186,6 +257,191 @@ export default function UploadData() {
             Activity Data
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="employees" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Add Employee Data</CardTitle>
+              <CardDescription>
+                Enter details for up to 4 employees. This data will be used across all pages for analysis and calculations.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                {employeeData.map((employee, index) => (
+                  <Card key={employee.id} className="p-4 bg-muted/50">
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-semibold">Employee {index + 1}</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="grid gap-1">
+                          <Label htmlFor={`name-${index}`} className="text-xs">Name *</Label>
+                          <Input
+                            id={`name-${index}`}
+                            placeholder="Full Name"
+                            value={employee.name}
+                            onChange={(e) => handleEmployeeDataChange(index, "name", e.target.value)}
+                            data-testid={`input-employee-name-${index}`}
+                          />
+                        </div>
+                        <div className="grid gap-1">
+                          <Label htmlFor={`email-${index}`} className="text-xs">Email *</Label>
+                          <Input
+                            id={`email-${index}`}
+                            type="email"
+                            placeholder="email@company.com"
+                            value={employee.email}
+                            onChange={(e) => handleEmployeeDataChange(index, "email", e.target.value)}
+                            data-testid={`input-employee-email-${index}`}
+                          />
+                        </div>
+                        <div className="grid gap-1">
+                          <Label htmlFor={`department-${index}`} className="text-xs">Department</Label>
+                          <Input
+                            id={`department-${index}`}
+                            placeholder="e.g. IT, Finance"
+                            value={employee.department}
+                            onChange={(e) => handleEmployeeDataChange(index, "department", e.target.value)}
+                            data-testid={`input-employee-department-${index}`}
+                          />
+                        </div>
+                        <div className="grid gap-1">
+                          <Label htmlFor={`position-${index}`} className="text-xs">Position</Label>
+                          <Input
+                            id={`position-${index}`}
+                            placeholder="e.g. Senior Analyst"
+                            value={employee.position}
+                            onChange={(e) => handleEmployeeDataChange(index, "position", e.target.value)}
+                            data-testid={`input-employee-position-${index}`}
+                          />
+                        </div>
+                        <div className="grid gap-1">
+                          <Label htmlFor={`salary-${index}`} className="text-xs">Salary</Label>
+                          <Input
+                            id={`salary-${index}`}
+                            type="number"
+                            placeholder="0"
+                            value={employee.salary}
+                            onChange={(e) => handleEmployeeDataChange(index, "salary", e.target.value)}
+                            data-testid={`input-employee-salary-${index}`}
+                          />
+                        </div>
+                        <div className="grid gap-1">
+                          <Label htmlFor={`productivity-${index}`} className="text-xs">Productivity (%)</Label>
+                          <Input
+                            id={`productivity-${index}`}
+                            type="number"
+                            placeholder="0-100"
+                            min="0"
+                            max="100"
+                            value={employee.productivity}
+                            onChange={(e) => handleEmployeeDataChange(index, "productivity", e.target.value)}
+                            data-testid={`input-employee-productivity-${index}`}
+                          />
+                        </div>
+                        <div className="grid gap-1">
+                          <Label htmlFor={`utilization-${index}`} className="text-xs">Utilization (%)</Label>
+                          <Input
+                            id={`utilization-${index}`}
+                            type="number"
+                            placeholder="0-100"
+                            min="0"
+                            max="100"
+                            value={employee.utilization}
+                            onChange={(e) => handleEmployeeDataChange(index, "utilization", e.target.value)}
+                            data-testid={`input-employee-utilization-${index}`}
+                          />
+                        </div>
+                        <div className="grid gap-1">
+                          <Label htmlFor={`fitment-${index}`} className="text-xs">Fitment Score</Label>
+                          <Input
+                            id={`fitment-${index}`}
+                            type="number"
+                            placeholder="0-10"
+                            min="0"
+                            max="10"
+                            step="0.1"
+                            value={employee.fitmentScore}
+                            onChange={(e) => handleEmployeeDataChange(index, "fitmentScore", e.target.value)}
+                            data-testid={`input-employee-fitment-${index}`}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+
+              <Button
+                onClick={handleEmployeeUpload}
+                disabled={employeeUploadMutation.isPending}
+                className="w-full"
+                size="lg"
+                data-testid="button-upload-employees"
+              >
+                {employeeUploadMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving Employee Data...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Save Employee Data
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {uploadedEmployees.length > 0 && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-500" />
+                  <CardTitle>Uploaded Employees</CardTitle>
+                </div>
+                <CardDescription>Successfully saved employee data</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="border rounded-md overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Department</TableHead>
+                        <TableHead>Position</TableHead>
+                        <TableHead>Productivity</TableHead>
+                        <TableHead>Utilization</TableHead>
+                        <TableHead>Fitment</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {uploadedEmployees.map((emp, idx) => (
+                        <TableRow key={idx} data-testid={`uploaded-employee-row-${idx}`}>
+                          <TableCell className="font-medium">{emp.name}</TableCell>
+                          <TableCell>{emp.email}</TableCell>
+                          <TableCell>{emp.department || "-"}</TableCell>
+                          <TableCell>{emp.position || "-"}</TableCell>
+                          <TableCell>{emp.productivity ? `${emp.productivity}%` : "-"}</TableCell>
+                          <TableCell>{emp.utilization ? `${emp.utilization}%` : "-"}</TableCell>
+                          <TableCell>{emp.fitmentScore ? emp.fitmentScore.toFixed(1) : "-"}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-md mt-4">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-500" />
+                  <span className="text-sm text-green-700 dark:text-green-400">
+                    Employee data saved successfully and will appear across all pages
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
 
         <TabsContent value="jds" className="space-y-6">
           <Card>
@@ -509,7 +765,20 @@ export default function UploadData() {
         </TabsContent>
       </Tabs>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Employees</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-mono" data-testid="text-total-employees">
+              {stats?.find((s) => s.type === "employee")?.count || 0}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">In database</p>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total JDs</CardTitle>
@@ -517,7 +786,7 @@ export default function UploadData() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono" data-testid="text-total-jds">
-              {stats?.filter((s) => s.type === "jd").length || 0}
+              {stats?.find((s) => s.type === "jd")?.count || 0}
             </div>
             <p className="text-xs text-muted-foreground mt-1">Uploaded documents</p>
           </CardContent>
@@ -530,7 +799,7 @@ export default function UploadData() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono" data-testid="text-total-cvs">
-              {stats?.filter((s) => s.type === "cv").length || 0}
+              {stats?.find((s) => s.type === "cv")?.count || 0}
             </div>
             <p className="text-xs text-muted-foreground mt-1">In database</p>
           </CardContent>
@@ -543,7 +812,7 @@ export default function UploadData() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono" data-testid="text-total-activity">
-              {stats?.filter((s) => s.type === "activity").length || 0}
+              {stats?.find((s) => s.type === "activity")?.count || 0}
             </div>
             <p className="text-xs text-muted-foreground mt-1">Processed successfully</p>
           </CardContent>
