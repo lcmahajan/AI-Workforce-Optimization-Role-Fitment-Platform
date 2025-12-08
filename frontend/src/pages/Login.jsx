@@ -80,9 +80,10 @@ export default function Login() {
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               AI Workforce Optimization Platform
             </CardTitle>
-            <p className="text-sm text-muted-foreground mt-2">
-              Enterprise HR Analytics & Insights
-            </p>
+            <p className="text-sm text-white mt-2">
+  Enterprise HR Analytics & Insights
+</p>
+
           </div>
         </CardHeader>
 
