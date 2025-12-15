@@ -127,8 +127,18 @@ function AppContent() {
           <header className="flex items-center justify-between px-4 py-2 border-b bg-background">
             <div className="flex items-center gap-3">
               <SidebarTrigger />
-              <div className="font-semibold text-sm">AI Workforce Optimization</div>
-            </div>
+             <div className="flex items-center gap-2">
+  <div className="font-semibold text-sm">AI Workforce Optimization</div>
+
+  {user && (
+    <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+      {user.role === "admin" ? "Manager Portal" : "Employee Portal"}
+    </span>
+  )}
+</div>
+</div>
+
+
 
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" className="relative">
