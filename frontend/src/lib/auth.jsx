@@ -1,78 +1,66 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { apiRequest } from "./queryClient";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Load user from localStorage on refresh
   useEffect(() => {
-    const storedToken = localStorage.getItem("auth_token");
-    const storedUser = localStorage.getItem("auth_user");
-
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+    const savedUser = localStorage.getItem("mock_user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
     }
     setIsLoading(false);
   }, []);
 
+  // MOCK LOGIN
   const login = async (usernameOrEmail, password) => {
-    const response = await apiRequest("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email: usernameOrEmail, password }), // Send usernameOrEmail in email field
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "Login failed");
+    // employee login
+    if (usernameOrEmail === "employee" && password === "1234") {
+      const employeeUser = {
+        username: "employee",
+        role: "employee",
+      };
+      localStorage.setItem("mock_user", JSON.stringify(employeeUser));
+      setUser(employeeUser);
+      return;
     }
 
-    const data = await response.json();
-    setToken(data.token);
-    setUser(data.user);
-    localStorage.setItem("auth_token", data.token);
-    localStorage.setItem("auth_user", JSON.stringify(data.user));
-  };
-
-  const register = async (username, email, password, department = "", role = "employee") => {
-    const response = await apiRequest("/api/auth/register", {
-      method: "POST",
-      body: JSON.stringify({ username, email, password, role, department }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "Registration failed");
+    // admin login
+    if (usernameOrEmail === "admin" && password === "1234") {
+      const adminUser = {
+        username: "admin",
+        role: "admin",
+      };
+      localStorage.setItem("mock_user", JSON.stringify(adminUser));
+      setUser(adminUser);
+      return;
     }
 
-    const data = await response.json();
-    setToken(data.token);
-    setUser(data.user);
-    localStorage.setItem("auth_token", data.token);
-    localStorage.setItem("auth_user", JSON.stringify(data.user));
+    throw new Error("Invalid credentials");
   };
 
   const logout = () => {
-    setToken(null);
+    localStorage.removeItem("mock_user");
     setUser(null);
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("auth_user");
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, isLoading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+        isLoading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+  return useContext(AuthContext);
 }
