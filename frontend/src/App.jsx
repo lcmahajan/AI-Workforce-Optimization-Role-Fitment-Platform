@@ -1,4 +1,5 @@
 // App.jsx
+import SixBySixAnalysis from "@/pages/SixBySixAnalysis";
 import { useEffect } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
@@ -36,13 +37,14 @@ function ProtectedRoute({ component: Component }) {
   const { user, isLoading } = useAuth();
   const [location, navigate] = useLocation();
 
-  useEffect(() => {
-    if (!isLoading && !user) navigate("/login");
-  }, [isLoading, user]);
+  // Temporarily disabled redirect for testing
+  // useEffect(() => {
+  //   if (!isLoading && !user) navigate("/login");
+  // }, [isLoading, user]);
 
   if (isLoading)
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
-  if (!user) return null;
+  // if (!user) return null;
 
   return <Component />;
 }
@@ -98,6 +100,11 @@ function Router() {
       <Route path="/fatigue" component={() => <ProtectedRoute component={Fatigue} />} />
       <Route path="/settings" component={() => <ProtectedRoute component={Settings} />} />
       <Route path="/documentation" component={() => <ProtectedRoute component={Documentation} />} />
+      <Route
+  path="/six-by-six"
+  component={() => <AdminRoute component={SixBySixAnalysis} />}
+/>
+
 
       {/* Not Found */}
       <Route component={NotFound} />

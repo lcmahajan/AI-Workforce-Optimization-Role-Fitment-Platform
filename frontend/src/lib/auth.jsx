@@ -11,6 +11,14 @@ export function AuthProvider({ children }) {
     const savedUser = localStorage.getItem("mock_user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
+    } else {
+      // Default to admin for testing
+      const defaultUser = {
+        username: "admin",
+        role: "admin",
+      };
+      localStorage.setItem("mock_user", JSON.stringify(defaultUser));
+      setUser(defaultUser);
     }
     setIsLoading(false);
   }, []);
