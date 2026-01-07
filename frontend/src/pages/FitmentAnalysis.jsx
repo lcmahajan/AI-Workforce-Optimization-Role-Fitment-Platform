@@ -1,353 +1,129 @@
-import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, ArrowUpDown, Users, TrendingUp, Award, Building2, Settings2 } from "lucide-react";
-
-const LOAD_SAMPLE_DATA = false;
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Brain,
+  Briefcase,
+  TrendingUp,
+  Activity,
+  ShieldCheck,
+} from "lucide-react";
 
 export default function FitmentAnalysis() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState("all");
-  
-  const [metrics, setMetrics] = useState({
-    totalEmployees: 0,
-    avgFitmentScore: 0.0,
-    highPerformers: 0,
-    departments: 0,
-  });
+  const isLoading = false;
 
-  const [employees, setEmployees] = useState([]);
-
-  useEffect(() => {
-    if (LOAD_SAMPLE_DATA) {
-      const sampleMetrics = {
-        totalEmployees: 5,
-        avgFitmentScore: 7.8,
-        highPerformers: 2,
-        departments: 3,
-      };
-
-      const sampleEmployees = [
-        {
-          id: 1,
-          employeeName: "Sarah Johnson",
-          department: "Engineering",
-          currentRole: "Senior Developer",
-          recommendedRole: "Tech Lead",
-          fitmentScore: 8.5,
-          status: "Fit",
-        },
-        {
-          id: 2,
-          employeeName: "Mike Chen",
-          department: "Sales",
-          currentRole: "Sales Rep",
-          recommendedRole: "Account Manager",
-          fitmentScore: 7.2,
-          status: "Fit",
-        },
-        {
-          id: 3,
-          employeeName: "Emma Wilson",
-          department: "Marketing",
-          currentRole: "Marketing Coordinator",
-          recommendedRole: "Marketing Coordinator",
-          fitmentScore: 6.8,
-          status: "Train to Fit",
-        },
-        {
-          id: 4,
-          employeeName: "David Park",
-          department: "Engineering",
-          currentRole: "Junior Developer",
-          recommendedRole: "Senior Developer",
-          fitmentScore: 5.5,
-          status: "Train to Fit",
-        },
-        {
-          id: 5,
-          employeeName: "Lisa Anderson",
-          department: "HR",
-          currentRole: "HR Manager",
-          recommendedRole: "HR Director",
-          fitmentScore: 9.2,
-          status: "Fit",
-        },
-      ];
-
-      setMetrics(sampleMetrics);
-      setEmployees(sampleEmployees);
-    }
-  }, []);
-
-  const filteredEmployees = useMemo(() => {
-    return employees.filter((emp) => {
-      const matchesSearch = emp.employeeName
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      const matchesDepartment =
-        departmentFilter === "all" || 
-        emp.department.toLowerCase() === departmentFilter.toLowerCase();
-      return matchesSearch && matchesDepartment;
-    });
-  }, [employees, searchQuery, departmentFilter]);
-
-  const highPerformersPercentage = metrics.totalEmployees > 0
-    ? ((metrics.highPerformers / metrics.totalEmployees) * 100).toFixed(0)
-    : "0";
-
-  const getStatusVariant = (status) => {
-    switch (status) {
-      case "Fit":
-        return "default";
-      case "Unfit":
-        return "destructive";
-      case "Train to Fit":
-        return "secondary";
-      case "Overfit":
-        return "outline";
-      default:
-        return "secondary";
-    }
+  /* DEMO EMPLOYEE DATA (later comes from backend) */
+  const employee = {
+    name: "You",
+    fitmentScore: 8.2,
+    fitmentStatus: "Fit",
+    productivity: 84,
+    fatigueRisk: "Low",
+    recommendedRole: "Senior Analyst",
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-5xl">
+
+      {/* ================= HEADER ================= */}
       <div>
-        <h1 className="text-3xl font-semibold">Employee Fitment Analysis</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Comprehensive employee-role fitment scoring with advanced filtering and sorting.
+        <h1 className="text-3xl font-bold">My Fitment Overview</h1>
+        <p className="text-muted-foreground mt-1">
+          Personalized insights about how well your skills align with your role
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="hover-elevate transition-all" data-testid="card-total-employees">
-          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Employees
+      {/* ================= SKELETON ================= */}
+      {isLoading && (
+        <div className="grid gap-6 md:grid-cols-3">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+        </div>
+      )}
+
+      {/* ================= AI SUMMARY ================= */}
+      {!isLoading && (
+        <Card className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-blue-600" />
+              AI Summary
             </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold" data-testid="text-total-employees">
-              {metrics.totalEmployees}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Across all departments</p>
-            <p className="text-xs text-primary mt-2">Active workforce</p>
+          <CardContent className="text-sm text-muted-foreground leading-relaxed">
+            Your current role aligns strongly with your skill profile. You show
+            consistent productivity with healthy workload balance. Based on
+            recent trends, you are well-positioned for advanced responsibilities
+            or role growth opportunities.
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ================= EXPERIENCE KPIs ================= */}
+      <div className="grid gap-6 md:grid-cols-3">
+
+        <Card>
+          <CardContent className="p-6">
+            <ShieldCheck className="h-5 w-5 text-green-600 mb-2" />
+            <div className="text-3xl font-bold">{employee.fitmentScore}/10</div>
+            <p className="text-sm text-muted-foreground">Fitment Score</p>
+            <Badge className="mt-2">{employee.fitmentStatus}</Badge>
           </CardContent>
         </Card>
 
-        <Card className="hover-elevate transition-all" data-testid="card-avg-fitment">
-          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Average Fitment Score
-            </CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold" data-testid="text-avg-fitment">
-              {metrics.avgFitmentScore.toFixed(1)}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Overall employee-role fit</p>
-            <p className="text-xs text-primary mt-2">Out of 10.0</p>
+        <Card>
+          <CardContent className="p-6">
+            <TrendingUp className="h-5 w-5 text-blue-600 mb-2" />
+            <div className="text-3xl font-bold">{employee.productivity}%</div>
+            <p className="text-sm text-muted-foreground">Avg Productivity</p>
           </CardContent>
         </Card>
 
-        <Card className="hover-elevate transition-all" data-testid="card-high-performers">
-          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              High Performers
-            </CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold" data-testid="text-high-performers">
-              {metrics.highPerformers}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Score ≥ 8.0</p>
-            <p className="text-xs text-primary mt-2">{highPerformersPercentage}% of total</p>
+        <Card>
+          <CardContent className="p-6">
+            <Activity className="h-5 w-5 text-yellow-600 mb-2" />
+            <div className="text-3xl font-bold">{employee.fatigueRisk}</div>
+            <p className="text-sm text-muted-foreground">Fatigue Risk</p>
           </CardContent>
         </Card>
 
-        <Card className="hover-elevate transition-all" data-testid="card-departments">
-          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Departments
-            </CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold" data-testid="text-departments">
-              {metrics.departments}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Unique departments</p>
-            <p className="text-xs text-primary mt-2">Organization units</p>
-          </CardContent>
-        </Card>
       </div>
 
+      {/* ================= ROLE GUIDANCE ================= */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Employee Fitment Data</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                View, sort, and filter employee fitment scores across departments and roles.
-              </p>
-            </div>
-            <Button variant="outline" size="sm" data-testid="button-columns">
-              <Settings2 className="h-4 w-4 mr-2" />
-              Columns
-            </Button>
-          </div>
+          <CardTitle className="flex items-center gap-2">
+            <Briefcase className="h-5 w-5" />
+            Role Guidance
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search employees…"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-                data-testid="input-search-fitment"
-              />
-            </div>
-
-            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-              <SelectTrigger className="w-full sm:w-[200px]" data-testid="select-department-filter">
-                <SelectValue placeholder="Department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Departments</SelectItem>
-                <SelectItem value="engineering">Engineering</SelectItem>
-                <SelectItem value="sales">Sales</SelectItem>
-                <SelectItem value="marketing">Marketing</SelectItem>
-                <SelectItem value="hr">Human Resources</SelectItem>
-                <SelectItem value="finance">Finance</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="border-b bg-muted/50">
-                <tr>
-                  <th className="text-left p-4 font-medium text-sm">
-                    <button 
-                      className="flex items-center gap-1 hover-elevate rounded-md px-2 py-1 -mx-2 -my-1" 
-                      data-testid="button-sort-name"
-                    >
-                      Employee Name
-                      <ArrowUpDown className="h-3 w-3" />
-                    </button>
-                  </th>
-                  <th className="text-left p-4 font-medium text-sm">
-                    <button 
-                      className="flex items-center gap-1 hover-elevate rounded-md px-2 py-1 -mx-2 -my-1" 
-                      data-testid="button-sort-department"
-                    >
-                      Department
-                      <ArrowUpDown className="h-3 w-3" />
-                    </button>
-                  </th>
-                  <th className="text-left p-4 font-medium text-sm">
-                    <button 
-                      className="flex items-center gap-1 hover-elevate rounded-md px-2 py-1 -mx-2 -my-1" 
-                      data-testid="button-sort-current-role"
-                    >
-                      Current Role
-                      <ArrowUpDown className="h-3 w-3" />
-                    </button>
-                  </th>
-                  <th className="text-left p-4 font-medium text-sm">
-                    <button 
-                      className="flex items-center gap-1 hover-elevate rounded-md px-2 py-1 -mx-2 -my-1" 
-                      data-testid="button-sort-recommended-role"
-                    >
-                      Recommended Role
-                      <ArrowUpDown className="h-3 w-3" />
-                    </button>
-                  </th>
-                  <th className="text-left p-4 font-medium text-sm">
-                    <button 
-                      className="flex items-center gap-1 hover-elevate rounded-md px-2 py-1 -mx-2 -my-1" 
-                      data-testid="button-sort-fitment-score"
-                    >
-                      Fitment Score
-                      <ArrowUpDown className="h-3 w-3" />
-                    </button>
-                  </th>
-                  <th className="text-left p-4 font-medium text-sm">
-                    <button 
-                      className="flex items-center gap-1 hover-elevate rounded-md px-2 py-1 -mx-2 -my-1" 
-                      data-testid="button-sort-status"
-                    >
-                      Status
-                      <ArrowUpDown className="h-3 w-3" />
-                    </button>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredEmployees.length === 0 ? (
-                  <tr>
-                    <td 
-                      colSpan={6} 
-                      className="p-12 text-center text-muted-foreground"
-                      data-testid="text-no-results"
-                    >
-                      No results found.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredEmployees.map((employee) => (
-                    <tr 
-                      key={employee.id} 
-                      className="border-b hover:bg-muted/50 transition-colors"
-                      data-testid={`row-employee-${employee.id}`}
-                    >
-                      <td className="p-4">
-                        <div className="font-medium">{employee.employeeName}</div>
-                      </td>
-                      <td className="p-4">
-                        <div className="text-sm text-muted-foreground">
-                          {employee.department}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="text-sm">{employee.currentRole}</div>
-                      </td>
-                      <td className="p-4">
-                        <div className="text-sm font-medium">
-                          {employee.recommendedRole}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="text-sm font-mono font-semibold">
-                          {employee.fitmentScore.toFixed(1)}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <Badge 
-                          variant={getStatusVariant(employee.status)}
-                          data-testid={`badge-status-${employee.id}`}
-                        >
-                          {employee.status}
-                        </Badge>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+        <CardContent className="space-y-2 text-sm">
+          <p>
+            <strong>Current Role:</strong> Aligned with your core strengths
+          </p>
+          <p>
+            <strong>Suggested Growth Role:</strong> {employee.recommendedRole}
+          </p>
+          <p className="text-muted-foreground">
+            Your profile indicates readiness for expanded scope or leadership
+            responsibilities with minimal upskilling required.
+          </p>
         </CardContent>
       </Card>
+
+      {/* ================= ACTION RECOMMENDATIONS ================= */}
+      <Card className="border-l-4 border-blue-500">
+        <CardHeader>
+          <CardTitle>Recommended Actions</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm">
+          <p>• Maintain current productivity rhythm</p>
+          <p>• Explore stretch assignments or mentorship roles</p>
+          <p>• Continue workload balance to avoid fatigue spikes</p>
+        </CardContent>
+      </Card>
+
     </div>
   );
 }

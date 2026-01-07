@@ -1,206 +1,194 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, TrendingDown, Clock, Battery } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  Brain,
+  BatteryCharging,
+  BatteryWarning,
+  Timer,
+  Activity,
+  HeartPulse,
+} from "lucide-react";
 
-const fatigueData = [
-  { week: "Week 1", avg: 25, threshold: 40 },
-  { week: "Week 2", avg: 32, threshold: 40 },
-  { week: "Week 3", avg: 38, threshold: 40 },
-  { week: "Week 4", avg: 45, threshold: 40 },
-  { week: "Week 5", avg: 52, threshold: 40 },
-  { week: "Week 6", avg: 48, threshold: 40 },
+/* ---------------- DEMO DATA ---------------- */
+const fatigueHealth = 72;
+
+const fatigueDrivers = [
+  { label: "Workload Intensity", value: 78 },
+  { label: "Overtime Frequency", value: 65 },
+  { label: "Focus Consistency", value: 70 },
+  { label: "Stress Signals", value: 60 },
 ];
 
-const atRiskEmployees = [
+const employees = [
   {
-    id: "1",
-    name: "James Brown",
-    role: "Backend Developer",
-    fatigueScore: 78,
-    avgHours: 52,
-    consecutiveDays: 12,
-    status: "high-risk",
+    name: "Sarah Johnson",
+    role: "Senior Developer",
+    fatigue: 68,
+    status: "Moderate",
   },
   {
-    id: "2",
-    name: "Lisa Anderson",
-    role: "Project Manager",
-    fatigueScore: 65,
-    avgHours: 48,
-    consecutiveDays: 9,
-    status: "medium-risk",
+    name: "Mike Chen",
+    role: "Product Manager",
+    fatigue: 82,
+    status: "High",
   },
   {
-    id: "3",
-    name: "David Kim",
-    role: "Data Analyst",
-    fatigueScore: 58,
-    avgHours: 45,
-    consecutiveDays: 7,
-    status: "medium-risk",
+    name: "Emma Wilson",
+    role: "HR Specialist",
+    fatigue: 55,
+    status: "Low",
   },
 ];
 
-const getRiskBadge = (status) => {
-  switch (status) {
-    case "high-risk":
-      return <Badge variant="destructive">High Risk</Badge>;
-    case "medium-risk":
-      return <Badge className="bg-yellow-100 text-yellow-800">Medium Risk</Badge>;
-    default:
-      return <Badge variant="secondary">Low Risk</Badge>;
-  }
-};
-
-export default function Fatigue() {
+export default function FatigueAnalysis() {
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-10">
+
+      {/* HEADER */}
       <div>
-        <h1 className="text-3xl font-semibold">Fatigue Analysis</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Monitor workload and identify burnout indicators
+        <h1 className="text-4xl font-bold tracking-tight">Fatigue Intelligence</h1>
+        <p className="text-muted-foreground mt-2 max-w-2xl">
+          AI-driven fatigue detection based on workload patterns, stress signals,
+          and productivity consistency.
         </p>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid gap-6 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">At Risk</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold font-mono text-destructive">3</div>
-            <p className="text-xs text-muted-foreground mt-1">Employees need attention</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Fatigue Score</CardTitle>
-            <TrendingDown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold font-mono">42%</div>
-            <p className="text-xs text-muted-foreground mt-1">Below threshold</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Weekly Hours</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold font-mono">43h</div>
-            <p className="text-xs text-muted-foreground mt-1">This week</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Burnout Alerts</CardTitle>
-            <Battery className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold font-mono">2</div>
-            <p className="text-xs text-muted-foreground mt-1">This month</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Fatigue Trend Chart */}
-      <Card>
+      {/* AI SUMMARY */}
+      <Card className="bg-gradient-to-r from-rose-50 to-orange-50 dark:from-rose-900/30 dark:to-orange-900/30">
         <CardHeader>
-          <CardTitle className="text-lg">Fatigue Trend</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="h-5 w-5 text-orange-600" />
+            AI Fatigue Summary
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={fatigueData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="week" className="text-xs" />
-              <YAxis className="text-xs" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "6px",
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="avg"
-                stroke="hsl(var(--chart-1))"
-                strokeWidth={2}
-                name="Avg Fatigue"
-              />
-              <Line
-                type="monotone"
-                dataKey="threshold"
-                stroke="hsl(var(--destructive))"
-                strokeWidth={2}
-                strokeDasharray="5 5"
-                name="Threshold"
-              />
-            </LineChart>
-          </ResponsiveContainer>
+        <CardContent className="text-muted-foreground">
+          Fatigue levels are moderate across the workforce. Product-facing and
+          managerial roles show early burnout indicators due to sustained workload
+          and decision fatigue. Preventive action is recommended.
         </CardContent>
       </Card>
 
-      {/* At-Risk Employees */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">At-Risk Employees</h2>
-        <div className="space-y-4">
-          {atRiskEmployees.map((employee) => (
-            <Card key={employee.id} data-testid={`card-at-risk-${employee.id}`}>
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-4 flex-1">
-                    <Avatar className="h-12 w-12">
-                      <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                        {employee.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold">{employee.name}</h3>
-                        {getRiskBadge(employee.status)}
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-4">{employee.role}</p>
-                      <div className="grid gap-3 md:grid-cols-3">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Battery className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-muted-foreground">Fatigue Score:</span>
-                          <span className="font-mono font-semibold text-destructive">
-                            {employee.fatigueScore}%
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-muted-foreground">Avg Hours:</span>
-                          <span className="font-mono font-semibold">{employee.avgHours}h/week</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm">
-                          <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-muted-foreground">Consecutive Days:</span>
-                          <span className="font-mono font-semibold">{employee.consecutiveDays}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      {/* FATIGUE HEALTH INDEX */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Overall Fatigue Health</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <div className="text-5xl font-bold text-orange-600">
+              {fatigueHealth}%
+            </div>
+            <Badge
+              className={
+                fatigueHealth >= 75
+                  ? "bg-green-500 text-white"
+                  : fatigueHealth >= 60
+                  ? "bg-yellow-400 text-black"
+                  : "bg-red-500 text-white"
+              }
+            >
+              {fatigueHealth >= 75
+                ? "Healthy"
+                : fatigueHealth >= 60
+                ? "Watch"
+                : "Critical"}
+            </Badge>
+          </div>
+          <p className="text-muted-foreground mt-3 max-w-xl">
+            Composite fatigue score derived from workload, overtime,
+            focus stability, and stress indicators.
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* FATIGUE DRIVERS */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {fatigueDrivers.map((driver, idx) => (
+          <Card key={idx}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-muted-foreground">
+                {driver.label}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold mb-2">{driver.value}%</div>
+              <Progress value={driver.value} />
+            </CardContent>
+          </Card>
+        ))}
       </div>
+
+      {/* INDIVIDUAL FATIGUE RISK */}
+      <div className="space-y-6">
+        {employees.map((emp, idx) => (
+          <Card key={idx}>
+            <CardContent className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 p-6">
+              <div>
+                <div className="font-semibold text-lg">{emp.name}</div>
+                <div className="text-sm text-muted-foreground">{emp.role}</div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="text-3xl font-bold text-orange-600">
+                  {emp.fatigue}%
+                </div>
+                <Badge
+                  className={
+                    emp.status === "High"
+                      ? "bg-red-500 text-white"
+                      : emp.status === "Moderate"
+                      ? "bg-yellow-400 text-black"
+                      : "bg-green-500 text-white"
+                  }
+                >
+                  {emp.status} Risk
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* AI RECOMMENDATIONS */}
+      <div className="grid gap-6 md:grid-cols-3">
+        <ActionCard
+          icon={BatteryCharging}
+          title="Recovery Opportunity"
+          text="Introduce short recovery breaks and workload rebalancing for high-risk roles."
+          color="border-green-500"
+        />
+        <ActionCard
+          icon={Timer}
+          title="Overtime Control"
+          text="Limit consecutive high-intensity workdays for managerial roles."
+          color="border-yellow-400"
+        />
+        <ActionCard
+          icon={HeartPulse}
+          title="Wellbeing Action"
+          text="Schedule wellness check-ins and encourage focus-driven work blocks."
+          color="border-red-500"
+        />
+      </div>
+
     </div>
+  );
+}
+
+/* ---------------- COMPONENT ---------------- */
+
+function ActionCard({ icon: Icon, title, text, color }) {
+  return (
+    <Card className={`border-l-4 ${color}`}>
+      <CardContent className="pt-6">
+        <h3 className="font-semibold flex items-center gap-2">
+          <Icon className="h-4 w-4" />
+          {title}
+        </h3>
+        <p className="text-sm text-muted-foreground mt-1">{text}</p>
+      </CardContent>
+    </Card>
   );
 }

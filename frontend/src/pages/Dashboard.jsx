@@ -1,211 +1,244 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useAuth } from "@/lib/auth";
 import {
   Users,
-  Briefcase,
   TrendingUp,
-  TrendingDown,
   AlertTriangle,
-  FileText,
-  UserCheck,
-  Activity,
   Zap,
-  Award,
-  Building2,
+  Activity,
+  UserCheck,
 } from "lucide-react";
 import { KPICard } from "@/components/KPICard";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+
+/* ================== DEMO DATA ================== */
+const adminKPIs = {
+  totalEmployees: 120,
+  avgProductivity: 82,
+  highPerformers: 28,
+  lowUtilization: 9,
+  automationPotential: 18,
+};
+
+const productivityTrend = [
+  { month: "Jan", value: 74 },
+  { month: "Feb", value: 76 },
+  { month: "Mar", value: 78 },
+  { month: "Apr", value: 80 },
+  { month: "May", value: 82 },
+  { month: "Jun", value: 82 },
+];
+
+const utilizationSplit = [
+  { name: "Optimized", value: 70 },
+  { name: "Overloaded", value: 18 },
+  { name: "Idle", value: 12 },
+];
+
+const COLORS = ["#22c55e", "#facc15", "#ef4444"];
 
 export default function Dashboard() {
   const { user } = useAuth();
   const role = user?.role || "employee";
 
-  const employeeStats = {
-    stats: {
-      totalEmployees: 10,
-      avgProductivity: 85,
-      highPerformers: 3,
-      lowUtilization: 2,
-    },
-    employees: [],
-  };
-
-  const stats = employeeStats.stats;
-  const employees = employeeStats.employees;
-
-  const topPerformers = useMemo(() => {
-    return employees
-      .slice()
-      .sort((a, b) => (b.fitmentScore || 0) - (a.fitmentScore || 0))
-      .slice(0, 3);
-  }, [employees]);
-
-  const workforceHealthScore =
-    stats.totalEmployees > 0
-      ? Math.round(stats.avgProductivity * 0.8)
-      : 0;
-
-  const fatigueAlertCount = Math.floor(stats.lowUtilization * 0.3);
-  const productivityDip = stats.avgProductivity < 80 ? 5 : 0;
+  const workforceHealth = Math.round(adminKPIs.avgProductivity * 0.85);
+  const healthLabel =
+    workforceHealth >= 75 ? "Healthy" : workforceHealth >= 60 ? "Watch" : "Critical";
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-10">
+
+      {/* ================= PAGE HEADER ================= */}
       <div>
-        <h1 className="text-4xl font-extrabold">Dashboard</h1>
-        <p className="text-lg text-muted-foreground mt-2">
-          Workforce overview & insights
+        <h1 className="text-4xl font-extrabold tracking-tight">
+          Workforce Intelligence
+        </h1>
+        <p className="text-muted-foreground mt-2 max-w-2xl">
+          Actionable workforce insights for smarter decisions
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Last updated: 2 minutes ago • Source: Workforce Engine
         </p>
       </div>
 
-      {/* ================= ADMIN VIEW ================= */}
+      {/* ================= ADMIN DASHBOARD ================= */}
       {role === "admin" && (
         <>
-          {/* Hero */}
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-800 dark:to-indigo-800">
-            <CardHeader>
-              <CardTitle className="text-2xl flex items-center gap-2 font-bold">
-                <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                Workforce Health Score
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="text-5xl font-bold text-blue-600 dark:text-blue-400">
-                  {workforceHealthScore}%
+          {/* HERO */}
+          <Card className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/40 dark:to-blue-900/40">
+            <CardContent className="p-8 flex flex-col md:flex-row justify-between gap-6">
+              <div>
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <Activity className="h-6 w-6 text-blue-600" />
+                  Workforce Health Index
+                </h2>
+                <p className="text-muted-foreground mt-2 max-w-xl">
+                  Composite score based on productivity, utilization & role fitment.
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="text-6xl font-extrabold text-blue-600">
+                  {workforceHealth}%
                 </div>
                 <Badge
                   className={
-                    workforceHealthScore >= 70
+                    workforceHealth >= 75
                       ? "bg-green-500 text-white"
-                      : workforceHealthScore >= 50
-                      ? "bg-yellow-500 text-black"
+                      : workforceHealth >= 60
+                      ? "bg-yellow-400 text-black"
                       : "bg-red-500 text-white"
                   }
                 >
-                  {workforceHealthScore >= 70 ? "Good" : workforceHealthScore >= 50 ? "Watch" : "Risk"}
+                  {healthLabel}
                 </Badge>
               </div>
-              <p className="text-muted-foreground">
-                {workforceHealthScore >= 70
-                  ? "Overall workforce health is strong with minor optimization opportunities"
-                  : workforceHealthScore >= 50
-                  ? "Workforce health needs attention with some areas for improvement"
-                  : "Workforce health is at risk, immediate action recommended"}
+            </CardContent>
+          </Card>
+
+          {/* KPI SNAPSHOT */}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <KPICard title="Total Employees" value={adminKPIs.totalEmployees} icon={Users} />
+            <KPICard
+              title="High Performers"
+              value={adminKPIs.highPerformers}
+              icon={TrendingUp}
+              progress={(adminKPIs.highPerformers / adminKPIs.totalEmployees) * 100}
+              progressColor="green"
+            />
+            <KPICard
+              title="Low Utilization"
+              value={adminKPIs.lowUtilization}
+              icon={AlertTriangle}
+              progress={(adminKPIs.lowUtilization / adminKPIs.totalEmployees) * 100}
+              progressColor="red"
+            />
+            <KPICard
+              title="Automation Potential"
+              value={`${adminKPIs.automationPotential}%`}
+              icon={Zap}
+            />
+          </div>
+
+          {/* VISUAL INTELLIGENCE */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Productivity Momentum</CardTitle>
+              </CardHeader>
+              <CardContent className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={productivityTrend}>
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#2563eb"
+                      strokeWidth={3}
+                      dot={{ r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Workload Distribution</CardTitle>
+              </CardHeader>
+              <CardContent className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={utilizationSplit}
+                      dataKey="value"
+                      innerRadius={45}
+                      outerRadius={85}
+                    >
+                      {utilizationSplit.map((_, i) => (
+                        <Cell key={i} fill={COLORS[i]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      )}
+
+      {/* ================= EMPLOYEE DASHBOARD ================= */}
+      {role === "employee" && (
+        <div className="space-y-8">
+
+          {/* HERO */}
+          <Card className="bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-900/30 dark:to-blue-900/30">
+            <CardContent className="p-8">
+              <h2 className="text-2xl font-bold flex items-center gap-2">
+                <Activity className="h-5 w-5 text-emerald-600" />
+                My Workforce Health
+              </h2>
+              <div className="flex items-center gap-4 mt-4">
+                <div className="text-5xl font-extrabold text-emerald-600">
+                  78%
+                </div>
+                <Badge className="bg-green-500 text-white">Healthy</Badge>
+              </div>
+              <p className="text-muted-foreground mt-3 max-w-xl">
+                Based on your productivity, workload balance & role alignment.
               </p>
             </CardContent>
           </Card>
 
-          {/* KPI CARDS */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <KPICard title="Total Employees" value={stats.totalEmployees} icon={Users} subtitle="↑ Growing workforce" />
-            <KPICard title="High Performers" value={stats.highPerformers} icon={TrendingUp} subtitle="↑ Improved vs last month" progress={stats.totalEmployees > 0 ? (stats.highPerformers / stats.totalEmployees) * 100 : 0} progressColor="green" />
-            <KPICard
-              title="Avg Productivity"
-              value={`${stats.avgProductivity}%`}
-              icon={Briefcase}
-              subtitle="↑ Improved vs last month"
-              progress={stats.avgProductivity}
-              progressColor="blue"
-            />
-            <KPICard
-              title="Low Utilization"
-              value={stats.lowUtilization}
-              icon={AlertTriangle}
-              subtitle="↓ Needs attention"
-              progress={stats.totalEmployees > 0 ? (stats.lowUtilization / stats.totalEmployees) * 100 : 0}
-              progressColor="red"
-            />
+          {/* PERSONAL KPIs */}
+          <div className="grid gap-6 md:grid-cols-3">
+            <KPICard title="My Fitment Score" value="8.1 / 10" icon={UserCheck} progress={81} progressColor="green" />
+            <KPICard title="Avg Productivity" value="84%" icon={TrendingUp} progress={84} progressColor="blue" />
+            <KPICard title="Fatigue Risk" value="Low" icon={AlertTriangle} progress={25} progressColor="green" />
           </div>
 
-          {/* ADVANCED KPIs */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <KPICard title="Avg Fitment Score" value="8.2/10" icon={UserCheck} subtitle="↑ Improved vs last month" />
-            <KPICard title="Automation Potential" value="15%" icon={Zap} subtitle="↑ Improved vs last month" />
-            <KPICard title="Skill Gaps" value="8 Employees" icon={Award} subtitle="↓ Needs attention" />
-            <KPICard title="Org Efficiency" value="High" icon={Building2} subtitle="↑ Improved vs last month" />
+          {/* PERSONAL INSIGHTS */}
+          <div className="grid gap-6 md:grid-cols-3">
+            <Card className="border-l-4 border-green-500">
+              <CardContent className="pt-6">
+                <h3 className="font-semibold">Your Strength</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  You consistently deliver quality work with balanced effort.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-l-4 border-yellow-400">
+              <CardContent className="pt-6">
+                <h3 className="font-semibold">Watch Area</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Workload spikes during peak weeks.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="border-l-4 border-blue-500">
+              <CardContent className="pt-6">
+                <h3 className="font-semibold">Recommendation</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  You are eligible for higher responsibility roles.
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* EXECUTIVE INSIGHT */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-bold">Optimization Opportunity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">15%</div>
-              <p className="text-lg font-medium mb-1">potential efficiency gain</p>
-              <p className="text-muted-foreground">Based on utilization and productivity patterns</p>
-            </CardContent>
-          </Card>
-
-          {/* Alerts */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-bold">Key Alerts</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg dark:bg-green-900/20 dark:border-green-800">
-                <div className="flex items-center gap-2">
-                  <UserCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
-                  <span className="font-medium text-green-800 dark:text-green-200">
-                    {stats.highPerformers} high performers identified → Consider leadership pipeline
-                  </span>
-                </div>
-              </div>
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:border-red-800">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
-                  <span className="font-medium text-red-800 dark:text-red-200">
-                    {stats.lowUtilization} employees underutilized → Review task allocation
-                  </span>
-                </div>
-              </div>
-              {fatigueAlertCount > 0 && (
-                <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg dark:bg-orange-900/20 dark:border-orange-800">
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                    <span className="font-medium text-orange-800 dark:text-orange-200">
-                      {fatigueAlertCount} employees show high fatigue → Schedule wellness check-ins
-                    </span>
-                  </div>
-                </div>
-              )}
-              {productivityDip > 0 && (
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/20 dark:border-blue-800">
-                  <div className="flex items-center gap-2">
-                    <TrendingDown className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    <span className="font-medium text-blue-800 dark:text-blue-200">
-                      Productivity dipped {productivityDip}% → Analyze bottlenecks
-                    </span>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </>
-      )}
-
-      {/* ================= EMPLOYEE VIEW ================= */}
-      {role === "employee" && (
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-bold">My Fitment</CardTitle>
-            </CardHeader>
-            <CardContent>Personal role insights coming soon</CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-bold">My Fatigue</CardTitle>
-            </CardHeader>
-            <CardContent>Fatigue trends coming soon</CardContent>
-          </Card>
         </div>
       )}
     </div>

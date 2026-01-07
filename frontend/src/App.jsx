@@ -102,7 +102,7 @@ function Router() {
       <Route path="/documentation" component={() => <ProtectedRoute component={Documentation} />} />
       <Route
   path="/six-by-six"
-  component={() => <AdminRoute component={SixBySixAnalysis} />}
+  component={() => <ProtectedRoute component={SixBySixAnalysis} />}
 />
 
 

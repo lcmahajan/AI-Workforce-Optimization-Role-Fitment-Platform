@@ -1,14 +1,30 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Brain, MessageSquare, Users, Target, Heart, Lightbulb } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import {
+  Brain,
+  MessageCircle,
+  Users,
+  Shield,
+  Lightbulb,
+  HeartHandshake,
+} from "lucide-react";
+
+/* ---------------- DEMO DATA ---------------- */
+const teamAverages = {
+  communication: 89,
+  teamwork: 87,
+  leadership: 82,
+};
+
+const teamHealthScore = 86;
 
 const employees = [
   {
-    id: "1",
     name: "Sarah Johnson",
     role: "Senior Developer",
-    scores: {
+    skills: {
       communication: 92,
       teamwork: 88,
       leadership: 85,
@@ -18,150 +34,155 @@ const employees = [
     },
   },
   {
-    id: "2",
     name: "Mike Chen",
     role: "Product Manager",
-    scores: {
-      communication: 95,
-      teamwork: 92,
-      leadership: 93,
-      problemSolving: 88,
+    skills: {
+      communication: 85,
+      teamwork: 90,
+      leadership: 88,
+      problemSolving: 82,
       empathy: 91,
-      creativity: 85,
-    },
-  },
-  {
-    id: "3",
-    name: "Emma Wilson",
-    role: "UX Designer",
-    scores: {
-      communication: 90,
-      teamwork: 91,
-      leadership: 78,
-      problemSolving: 89,
-      empathy: 95,
-      creativity: 97,
+      creativity: 84,
     },
   },
 ];
-
-const skillCategories = [
-  { name: "Communication", icon: MessageSquare, key: "communication" },
-  { name: "Teamwork", icon: Users, key: "teamwork" },
-  { name: "Leadership", icon: Target, key: "leadership" },
-  { name: "Problem Solving", icon: Brain, key: "problemSolving" },
-  { name: "Empathy", icon: Heart, key: "empathy" },
-  { name: "Creativity", icon: Lightbulb, key: "creativity" },
-];
-
-function getScoreColor(score) {
-  if (score >= 90) return "text-green-600";
-  if (score >= 75) return "text-blue-600";
-  if (score >= 60) return "text-yellow-600";
-  return "text-red-600";
-}
 
 export default function Softskills() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
+
+      {/* HEADER */}
       <div>
-        <h1 className="text-3xl font-semibold">Softskills Assessment</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Behavioral analytics and soft skill evaluation
+        <h1 className="text-4xl font-bold tracking-tight">Soft Skills Intelligence</h1>
+        <p className="text-muted-foreground mt-2 max-w-2xl">
+          Behavioral analytics, collaboration patterns, and leadership potential —
+          interpreted using AI-driven insights.
         </p>
       </div>
 
+      {/* AI SUMMARY */}
+      <Card className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="h-5 w-5 text-blue-600" />
+            AI Behavioral Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-muted-foreground">
+          Overall team demonstrates strong communication and problem-solving abilities.
+          Leadership capability is solid but varies across roles. Empathy and teamwork
+          remain consistent strengths across the organization.
+        </CardContent>
+      </Card>
+
+      {/* TEAM HEALTH */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Team Soft Skills Health</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <div className="text-5xl font-bold text-blue-600">
+              {teamHealthScore}%
+            </div>
+            <Badge className="bg-green-500 text-white">Strong Capability</Badge>
+          </div>
+          <p className="text-muted-foreground mt-3 max-w-xl">
+            Composite score derived from communication, teamwork, leadership,
+            empathy, and problem-solving signals.
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* AVERAGE KPIs */}
       <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Avg Communication
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold font-mono text-primary">89%</div>
-            <p className="text-xs text-muted-foreground mt-1">Across all employees</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Avg Teamwork
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold font-mono text-primary">87%</div>
-            <p className="text-xs text-muted-foreground mt-1">Team collaboration</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Avg Leadership
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold font-mono text-primary">82%</div>
-            <p className="text-xs text-muted-foreground mt-1">Leadership potential</p>
-          </CardContent>
-        </Card>
+        <SkillKPI title="Communication" value={teamAverages.communication} icon={MessageCircle} />
+        <SkillKPI title="Teamwork" value={teamAverages.teamwork} icon={Users} />
+        <SkillKPI title="Leadership" value={teamAverages.leadership} icon={Shield} />
       </div>
 
-      <div className="space-y-6">
-        {employees.map((employee) => (
-          <Card key={employee.id} data-testid={`card-employee-skills-${employee.id}`}>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4 mb-6">
-                <Avatar className="h-12 w-12">
-                  <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                    {employee.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="font-semibold text-lg">{employee.name}</h3>
-                  <p className="text-sm text-muted-foreground">{employee.role}</p>
+      {/* EMPLOYEE SKILLS */}
+      <div className="space-y-8">
+        {employees.map((emp, idx) => (
+          <Card key={idx}>
+            <CardHeader>
+              <CardTitle>
+                {emp.name}
+                <span className="block text-sm text-muted-foreground">
+                  {emp.role}
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-6 md:grid-cols-3">
+              {Object.entries(emp.skills).map(([skill, value]) => (
+                <div key={skill}>
+                  <div className="flex justify-between text-sm mb-1 capitalize">
+                    <span>{skill.replace(/([A-Z])/g, " $1")}</span>
+                    <span className="font-medium">{value}%</span>
+                  </div>
+                  <Progress value={value} />
                 </div>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {skillCategories.map((skill) => {
-                  const score = employee.scores[skill.key];
-                  const Icon = skill.icon;
-                  return (
-                    <div
-                      key={skill.key}
-                      className="flex items-center gap-3 p-3 bg-muted rounded-lg"
-                    >
-                      <Icon className="h-5 w-5 text-muted-foreground" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{skill.name}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <div className="flex-1 h-2 bg-background rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-primary"
-                              style={{ width: `${score}%` }}
-                            />
-                          </div>
-                          <span
-                            className={`text-sm font-mono font-semibold ${getScoreColor(score)}`}
-                          >
-                            {score}%
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              ))}
             </CardContent>
           </Card>
         ))}
       </div>
+
+      {/* AI COACHING */}
+      <div className="grid gap-6 md:grid-cols-3">
+        <InsightCard
+          title="Strength"
+          icon={HeartHandshake}
+          text="High empathy and collaboration drive strong team cohesion."
+          color="border-green-500"
+        />
+        <InsightCard
+          title="Development Area"
+          icon={Lightbulb}
+          text="Leadership consistency can be improved through mentorship programs."
+          color="border-yellow-400"
+        />
+        <InsightCard
+          title="Recommendation"
+          icon={Shield}
+          text="Introduce cross-team leadership initiatives and peer coaching."
+          color="border-blue-500"
+        />
+      </div>
+
     </div>
+  );
+}
+
+/* ---------------- COMPONENTS ---------------- */
+
+function SkillKPI({ title, value, icon: Icon }) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          Avg {title}
+        </CardTitle>
+        <Icon className="h-4 w-4 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-3xl font-bold text-blue-600">{value}%</div>
+        <p className="text-xs text-muted-foreground mt-1">Across all employees</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function InsightCard({ title, icon: Icon, text, color }) {
+  return (
+    <Card className={`border-l-4 ${color}`}>
+      <CardContent className="pt-6">
+        <h3 className="font-semibold flex items-center gap-2">
+          <Icon className="h-4 w-4" />
+          {title}
+        </h3>
+        <p className="text-sm text-muted-foreground mt-1">{text}</p>
+      </CardContent>
+    </Card>
   );
 }
