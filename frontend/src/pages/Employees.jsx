@@ -11,7 +11,6 @@ import {
   Brain,
   Briefcase,
   Gauge,
-  Upload,
   FileText,
   Linkedin,
   Save,
@@ -24,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /* ============================================================
-   EMPLOYEE PROFILE UPLOADS (VISIBLE & WORKING UI)
+   EMPLOYEE PROFILE UPLOADS
 ============================================================ */
 function EmployeeProfileUploads() {
   const [resume, setResume] = useState(null);
@@ -41,7 +40,6 @@ function EmployeeProfileUploads() {
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* Resume */}
         <div>
           <label className="text-sm font-medium">Resume</label>
           <div className="flex gap-3 mt-1">
@@ -50,7 +48,6 @@ function EmployeeProfileUploads() {
           </div>
         </div>
 
-        {/* CV */}
         <div>
           <label className="text-sm font-medium">CV</label>
           <div className="flex gap-3 mt-1">
@@ -59,7 +56,6 @@ function EmployeeProfileUploads() {
           </div>
         </div>
 
-        {/* LinkedIn */}
         <div>
           <label className="text-sm font-medium flex items-center gap-2">
             <Linkedin className="h-4 w-4 text-blue-700" />
@@ -76,10 +72,6 @@ function EmployeeProfileUploads() {
           <Save className="h-4 w-4" />
           Save Profile
         </Button>
-
-        <p className="text-xs text-muted-foreground">
-          This data improves AI role fitment, skill analysis & career insights.
-        </p>
       </CardContent>
     </Card>
   );
@@ -92,18 +84,21 @@ export default function Employees() {
   const { user } = useAuth();
   const role = user?.role || "employee";
 
-  const { isLoading } = useQuery({
+  // ✅ CHANGE 1: data added
+  const { data, isLoading, error } = useQuery({
     queryKey: ["/api/employees"],
+    enabled: true
   });
+  console.log("Role:", role);
+  console.log("Employees API response:", data);
 
-  /* ============================================================
-     EMPLOYEE PORTAL (THIS WAS MISSING BEFORE — NOW FIXED)
-  ============================================================ */
+
+  // ✅ CHANGE 2: API response log
+  console.log("Employees API response:", data);
+
   if (role === "employee") {
     return (
       <div className="space-y-10">
-
-        {/* HEADER */}
         <div>
           <h1 className="text-3xl font-bold">My Workforce Intelligence</h1>
           <p className="text-muted-foreground">
@@ -111,10 +106,8 @@ export default function Employees() {
           </p>
         </div>
 
-        {/* PROFILE UPLOADS (NOW VISIBLE ✅) */}
         <EmployeeProfileUploads />
 
-        {/* LOADING */}
         {isLoading && (
           <div className="grid gap-6 md:grid-cols-3">
             <Skeleton className="h-28" />
@@ -123,8 +116,7 @@ export default function Employees() {
           </div>
         )}
 
-        {/* AI SUMMARY */}
-        <Card className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30">
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Brain className="h-5 w-5 text-blue-600" />
@@ -133,12 +125,10 @@ export default function Employees() {
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
             Your recent work patterns show strong role alignment and stable
-            productivity. You are well-positioned for increased responsibility
-            with minimal fatigue risk.
+            productivity.
           </CardContent>
         </Card>
 
-        {/* EXPERIENCE KPIs */}
         <div className="grid gap-6 md:grid-cols-3">
           <Card>
             <CardContent className="p-6">
@@ -164,33 +154,13 @@ export default function Employees() {
             </CardContent>
           </Card>
         </div>
-
-        {/* RECOMMENDATIONS */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recommended Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <p>• Maintain current productivity rhythm</p>
-            <p>• Explore leadership or ownership roles</p>
-            <p>• Keep workload balanced during peak cycles</p>
-          </CardContent>
-        </Card>
       </div>
     );
   }
 
-  /* ============================================================
-     ADMIN VIEW (DIFFERENT FROM FITMENT ANALYSIS)
-  ============================================================ */
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold">Employees</h1>
-        <p className="text-muted-foreground">
-          Manage and monitor workforce performance
-        </p>
-      </div>
+      <h1 className="text-3xl font-semibold">Employees</h1>
 
       <div className="grid gap-4 md:grid-cols-4">
         <Card><CardContent className="p-6"><Users /> 120 Employees</CardContent></Card>
