@@ -4,7 +4,6 @@ import {
   BarChart3,
   Users,
   Upload,
-  FileText,
   Settings,
   BookOpen,
   Zap,
@@ -40,11 +39,13 @@ const insightsItems = [
   { title: "Fitment Analysis", url: "/fitment", icon: Target },
   { title: "Softskills", url: "/softskills", icon: Brain },
   { title: "Fatigue Analysis", url: "/fatigue", icon: AlertCircle },
+  { title: "Workforce Intelligence", url: "/workforce-intelligence", icon: BarChart3 },
+  { title: "Gap Analysis", url: "/gap-analysis", icon: BarChart3 }, // ✅ ADD THIS
 ];
+
 
 const adminDataItems = [
   { title: "Upload Data", url: "/upload", icon: Upload },
-  { title: "Reports", url: "/reports", icon: FileText },
 ];
 
 const adminOptimizationItems = [
@@ -108,6 +109,8 @@ export function AppSidebar() {
                   <Link to={item.url}>
                     <item.icon className="h-4 w-4" />
                     <span>{item.title}</span>
+                   
+
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

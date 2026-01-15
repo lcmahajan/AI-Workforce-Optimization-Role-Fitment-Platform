@@ -8,9 +8,11 @@ export function AuthProvider({ children }) {
 
   // Load user from localStorage on refresh
   useEffect(() => {
+    console.log("Auth useEffect running");
     const savedUser = localStorage.getItem("mock_user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
+      console.log("Loaded user from localStorage", JSON.parse(savedUser));
     } else {
       // Default to admin for testing
       const defaultUser = {
@@ -19,8 +21,10 @@ export function AuthProvider({ children }) {
       };
       localStorage.setItem("mock_user", JSON.stringify(defaultUser));
       setUser(defaultUser);
+      console.log("Set default user", defaultUser);
     }
     setIsLoading(false);
+    console.log("Set isLoading to false");
   }, []);
 
   // MOCK LOGIN
