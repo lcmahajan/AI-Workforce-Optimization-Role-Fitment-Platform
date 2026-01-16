@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "name": "ai-workforce-optimization-role-fitment-platform",
   "version": "1.0.0",
@@ -18,3 +19,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
+=======
+{}
+>>>>>>> backup-frontend-ui
