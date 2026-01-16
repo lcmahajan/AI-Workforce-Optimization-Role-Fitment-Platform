@@ -15,10 +15,15 @@ app.use(cors());
 
 // MongoDB Connection
 mongoose
+<<<<<<< HEAD
+  .connect(process.env.MONGO_URI)
+
+=======
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
+>>>>>>> backup-frontend-ui
   .then(() => console.log("✅ MongoDB Connected Successfully!"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
